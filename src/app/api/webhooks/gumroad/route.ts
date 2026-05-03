@@ -36,10 +36,16 @@ export async function POST(req: NextRequest) {
     const email = data.email;
     const price = data.price; // cents
 
-    // 1. If no sale_id, it's likely a verification ping
-    if (!saleId || data.test === "true") {
-      console.log("Gumroad Ping/Test detected. Returning 200 OK.");
+    // 1. If no sale_id, it's a verification ping. 
+    // We only return early if there is absolutely no sale_id.
+    if (!saleId) {
+      console.log("Gumroad Verification Ping received. Returning 200 OK.");
       return NextResponse.json({ success: true, message: "Ping received" });
+    }
+
+    // If it's a test sale, we log it but continue
+    if (data.test === "true") {
+      console.log("Gumroad Test Sale detected. Proceeding with credit update for testing.");
     }
 
     // 2. If we have a sale but no user_id
