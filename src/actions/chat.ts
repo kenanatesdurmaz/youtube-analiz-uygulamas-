@@ -1,11 +1,9 @@
 "use server";
 
-import { GoogleGenAI } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from "@/utils/supabase/server";
 
-const ai = new GoogleGenAI({
-  apiKey: process.env.GEMINI_API_KEY,
-});
+const ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function askQuestion(transcript: string, question: string, analysisId?: string, cost: number = 1, label?: string) {
   const supabase = await createClient();
