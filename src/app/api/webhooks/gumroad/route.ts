@@ -1,40 +1,59 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-// Gumroad Webhook Handler
 export async function POST(req: NextRequest) {
   try {
-    const formData = await req.formData();
-    const data = Object.fromEntries(formData);
+    let data: any;
     
-    // Gumroad custom fields or URL params
-    const userId = data.user_id as string;
-    const saleId = data.sale_id as string;
-    const email = data.email as string;
-    const price = data.price as string;
+    // Hem JSON hem de Form Data'yı destekleyelim
+    const contentType = req.headers.get("content-type") || "";
+    if (contentType.includes("application/json")) {
+      data = await req.json();
+    } else {
+      const formData = await req.formData();
+      data = Object.fromEntries(formData);
+    }
 
-    console.log("Gumroad Webhook Received:", { userId, saleId, email, price });
+    console.log("Gumroad Webhook Raw Data:", JSON.stringify(data));
+
+    // Gumroad query param veya custom field olarak user_id gönderebilir
+    // Bazı durumlarda custom_fields içinde JSON string olarak gelebilir
+    let userId = data.user_id || data["custom_fields[user_id]"];
+    
+    // Eğer custom_fields bir string ise onu parçalayalım
+    if (!userId && data.custom_fields) {
+      try {
+        const cf = JSON.parse(data.custom_fields);
+        userId = cf.user_id;
+      } catch (e) {
+        // Not a JSON string
+      }
+    }
+
+    const saleId = data.sale_id || data.id;
+    const email = data.email;
+    const price = data.price; // Gumroad sends cents
 
     if (!userId) {
+      console.error("Webhook Error: No user_id found in data", data);
       return NextResponse.json({ error: "Missing user_id" }, { status: 400 });
     }
 
-    // Admin client to bypass RLS
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // 1. Log the transaction (optional)
+    // 1. İşlemi kaydet
     await supabaseAdmin.from('transactions').insert({
       user_id: userId,
       gumroad_sale_id: saleId,
-      amount: parseInt(price) / 100, // Gumroad sends cents
+      amount: price ? parseInt(price) / 100 : 0,
       email: email,
       status: 'completed'
     });
 
-    // 2. Increment user credits (Premium plan: 100 credits)
+    // 2. Kredileri güncelle
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('credits')
@@ -56,7 +75,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, message: "Credits added" });
   } catch (err: any) {
-    console.error("Webhook Error:", err);
+    console.error("Webhook Error Details:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
