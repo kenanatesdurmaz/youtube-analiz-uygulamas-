@@ -1,6 +1,6 @@
 "use server";
 
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/generative-ai';
 import { createClient } from "@/utils/supabase/server";
 
 const ai = new GoogleGenAI({

@@ -69,10 +69,10 @@ export async function analyzeVideo(url: string) {
     if (videoData.subtitles && Array.isArray(videoData.subtitles) && videoData.subtitles.length > 0) {
       // Genelde srt formatında geliyor, en mantıklısını seçiyoruz
       const enOrAuto = videoData.subtitles.find((s: any) => s.language === "en" || s.language === "tr" || s.type === "auto_generated");
-      transcript = enOrAuto ? enOrAuto.srt : videoData.subtitles[0].srt;
-    } else if (videoData.text) {
+      transcript = (enOrAuto ? enOrAuto.srt : videoData.subtitles[0].srt) as string;
+    } else if ((videoData as any).text) {
       // Açıklama kısmını yedek olarak kullanabiliriz
-      transcript = videoData.text;
+      transcript = (videoData as any).text as string;
     }
 
     // Thumbnail için YouTube ID fallback'i
@@ -98,8 +98,8 @@ export async function analyzeVideo(url: string) {
         title: videoData.title,
         channel: videoData.channelName,
         thumbnail: finalThumbnail,
-        transcript: transcript,
-        duration: parseDuration(videoData.duration),
+        transcript: String(transcript),
+        duration: Number(parseDuration(videoData.duration as string)),
         chat_history: []
       })
       .select('id')
