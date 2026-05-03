@@ -42,13 +42,23 @@ export default function PricingPage() {
 
     // Listen for Gumroad success event
     const handleMessage = (event: MessageEvent) => {
-      // Gumroad sends messages as objects, sometimes as strings
-      const data = typeof event.data === 'string' ? (() => {
-        try { return JSON.parse(event.data); } catch(e) { return {}; }
-      })() : event.data;
+      // Log for debugging
+      console.log("Message received from:", event.origin, "Data:", event.data);
 
-      if (data && (data.event === "gumroad.sale" || data.message === "sale")) {
-        console.log("Gumroad sale detected! Redirecting to success page...");
+      let data = event.data;
+      if (typeof data === 'string') {
+        try { data = JSON.parse(data); } catch (e) { /* ignore */ }
+      }
+
+      // Check for any sign of a successful sale
+      const isSale = 
+        data === "sale" || 
+        data.event === "gumroad.sale" || 
+        data.message === "sale" || 
+        (typeof data === 'string' && data.includes("sale"));
+
+      if (isSale) {
+        console.log("Gumroad sale detected! Redirecting...");
         router.push("/success");
       }
     };
