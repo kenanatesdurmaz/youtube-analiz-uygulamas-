@@ -16,13 +16,14 @@ export async function POST(req: NextRequest) {
 
     console.log("Gumroad Webhook Received Data:", JSON.stringify(data, null, 2));
 
-    // Try to find user_id in various possible locations
-    let userId = data.user_id || 
-                 data["user_id"] || 
-                 data["custom_fields[user_id]"] || 
-                 data["url_params[custom_fields%5Buser_id%5D]"] ||
-                 data["url_params[user_id]"] ||
-                 data.custom_fields?.user_id;
+    // Try to find user_id in any key (Gumroad can be unpredictable)
+    for (const key of Object.keys(data)) {
+      if (key.toLowerCase().includes('user_id')) {
+        userId = data[key];
+        console.log(`Found user_id in key: ${key}`);
+        break;
+      }
+    }
     
     // If custom_fields is a string (JSON), parse it
     if (!userId && data.custom_fields && typeof data.custom_fields === 'string') {
