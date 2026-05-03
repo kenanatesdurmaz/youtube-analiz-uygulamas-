@@ -16,6 +16,7 @@ export async function POST(req: NextRequest) {
 
     console.log("Gumroad Webhook Received Data:", JSON.stringify(data, null, 2));
 
+    let userId = null;
     // Try to find user_id in any key (Gumroad can be unpredictable)
     for (const key of Object.keys(data)) {
       if (key.toLowerCase().includes('user_id')) {
