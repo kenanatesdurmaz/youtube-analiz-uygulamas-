@@ -199,9 +199,7 @@ export default function PricingPage() {
               {user ? (
                 <a
                   href={getCheckoutUrl(product.id)}
-                  target="_blank"
-                  rel="noreferrer"
-                  className={`w-full text-center bg-gradient-to-r ${product.color} hover:opacity-90 text-white py-4 rounded-xl font-bold transition-all flex justify-center items-center gap-2 shadow-lg`}
+                  className={`gumroad-button w-full text-center bg-gradient-to-r ${product.color} hover:opacity-90 text-white py-4 rounded-xl font-bold transition-all flex justify-center items-center gap-2 shadow-lg`}
                 >
                   Satın Al <ArrowRight className="w-5 h-5" />
                 </a>
