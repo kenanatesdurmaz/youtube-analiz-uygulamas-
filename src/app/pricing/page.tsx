@@ -19,19 +19,43 @@ export default function PricingPage() {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data: { user } }) => {
+    async function getUser() {
+      const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
       if (user) {
-        const { data } = await supabase.from('profiles').select('credits, is_premium, last_renewed_at').eq('id', user.id).single();
-        if (data) {
-          setCredits(data.credits);
-          setIsPremium(data.is_premium || false);
-          setLastRenewedAt(data.last_renewed_at);
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('credits, is_premium, last_renewed_at')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile) {
+          setCredits(profile.credits || 0);
+          setIsPremium(profile.is_premium || false);
+          setLastRenewedAt(profile.last_renewed_at);
         }
       }
       setIsAuthLoading(false);
-    });
-  }, []);
+    }
+    getUser();
+
+    // Listen for Gumroad success event
+    const handleMessage = (event: MessageEvent) => {
+      // Gumroad sends messages as objects, sometimes as strings
+      const data = typeof event.data === 'string' ? (() => {
+        try { return JSON.parse(event.data); } catch(e) { return {}; }
+      })() : event.data;
+
+      if (data && (data.event === "gumroad.sale" || data.message === "sale")) {
+        console.log("Gumroad sale detected! Redirecting to success page...");
+        router.push("/success");
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
+  }, [supabase, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
