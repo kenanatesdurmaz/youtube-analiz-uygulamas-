@@ -20,6 +20,8 @@ export async function POST(req: NextRequest) {
     let userId = data.user_id || 
                  data["user_id"] || 
                  data["custom_fields[user_id]"] || 
+                 data["url_params[custom_fields%5Buser_id%5D]"] ||
+                 data["url_params[user_id]"] ||
                  data.custom_fields?.user_id;
     
     // If custom_fields is a string (JSON), parse it
