@@ -52,7 +52,7 @@ export default function PricingPage() {
   ];
 
   const getCheckoutUrl = (productId: string) => {
-    return `https://kenanate.gumroad.com/l/${productId}?user_id=${user?.id || ""}`;
+    return `https://kenanate.gumroad.com/l/${productId}?custom_fields[user_id]=${user?.id || ""}`;
   };
 
   return (

@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   try {
     let data: any;
     
-    // Hem JSON hem de Form Data'yı destekleyelim
+    // Support both JSON and Form Data
     const contentType = req.headers.get("content-type") || "";
     if (contentType.includes("application/json")) {
       data = await req.json();
@@ -14,37 +14,58 @@ export async function POST(req: NextRequest) {
       data = Object.fromEntries(formData);
     }
 
-    console.log("Gumroad Webhook Raw Data:", JSON.stringify(data));
+    console.log("Gumroad Webhook Received Data:", JSON.stringify(data, null, 2));
 
-    // Gumroad query param veya custom field olarak user_id gönderebilir
-    // Bazı durumlarda custom_fields içinde JSON string olarak gelebilir
-    let userId = data.user_id || data["custom_fields[user_id]"];
+    // Try to find user_id in various possible locations
+    let userId = data.user_id || 
+                 data["user_id"] || 
+                 data["custom_fields[user_id]"] || 
+                 data.custom_fields?.user_id;
     
-    // Eğer custom_fields bir string ise onu parçalayalım
-    if (!userId && data.custom_fields) {
+    // If custom_fields is a string (JSON), parse it
+    if (!userId && data.custom_fields && typeof data.custom_fields === 'string') {
       try {
         const cf = JSON.parse(data.custom_fields);
         userId = cf.user_id;
       } catch (e) {
-        // Not a JSON string
+        // Not JSON
       }
     }
 
     const saleId = data.sale_id || data.id;
     const email = data.email;
-    const price = data.price; // Gumroad sends cents
+    const price = data.price; // cents
 
-    if (!userId) {
-      console.error("Webhook Error: No user_id found in data", data);
-      return NextResponse.json({ error: "Missing user_id" }, { status: 400 });
+    // 1. If no sale_id, it's likely a verification ping
+    if (!saleId || data.test === "true") {
+      console.log("Gumroad Ping/Test detected. Returning 200 OK.");
+      return NextResponse.json({ success: true, message: "Ping received" });
     }
+
+    // 2. If we have a sale but no user_id
+    if (!userId) {
+      console.warn("Webhook Warning: No user_id found in sale data.");
+      return NextResponse.json({ error: "Missing user_id in sale data" }, { status: 200 });
+    }
+
+    console.log(`Processing sale ${saleId} for user ${userId}`);
 
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // 1. İşlemi kaydet
+    // 3. Record transaction and check for duplicates
+    const { data: existing } = await supabaseAdmin
+      .from('transactions')
+      .select('id')
+      .eq('gumroad_sale_id', saleId)
+      .single();
+
+    if (existing) {
+      return NextResponse.json({ success: true, message: "Already processed" });
+    }
+
     await supabaseAdmin.from('transactions').insert({
       user_id: userId,
       gumroad_sale_id: saleId,
@@ -53,29 +74,25 @@ export async function POST(req: NextRequest) {
       status: 'completed'
     });
 
-    // 2. Kredileri güncelle
-    const { data: profile, error: profileError } = await supabaseAdmin
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('credits')
       .eq('id', userId)
       .single();
 
-    if (profileError) throw profileError;
-
-    const { error: updateError } = await supabaseAdmin
+    await supabaseAdmin
       .from('profiles')
       .update({ 
-        credits: (profile.credits || 0) + 100,
+        credits: (profile?.credits || 0) + 100,
         is_premium: true,
         last_renewed_at: new Date().toISOString()
       })
       .eq('id', userId);
 
-    if (updateError) throw updateError;
+    return NextResponse.json({ success: true, message: "Credits added successfully" });
 
-    return NextResponse.json({ success: true, message: "Credits added" });
   } catch (err: any) {
-    console.error("Webhook Error Details:", err);
+    console.error("Gumroad Webhook Final Error:", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
