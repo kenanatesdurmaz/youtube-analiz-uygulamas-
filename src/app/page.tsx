@@ -3,7 +3,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Video, Sparkles, Brain, Zap, ArrowRight, Loader2, MessageSquare, Send, Coins, LogOut, Crosshair, ListVideo, Scissors, CheckCircle, LayoutDashboard, ArrowLeft, TrendingUp, Briefcase, Users, HelpCircle, ChevronDown, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { analyzeVideo } from "@/actions/analyze";
+import { videoAnalysis } from "@/actions/videoAnalysis";
 import { askQuestion } from "@/actions/chat";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
@@ -93,7 +93,7 @@ export default function Home() {
     setResult(null);
     setChatMessages([]);
 
-    const res = await analyzeVideo(url);
+    const res = await videoAnalysis(url);
     
     if (res.success) {
       setResult(res.data);

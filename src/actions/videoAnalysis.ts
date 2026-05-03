@@ -16,7 +16,7 @@ const parseDuration = (durationStr: string) => {
   return parts[0] || 0;
 };
 
-export async function analyzeVideo(url: string) {
+export async function videoAnalysis(url: string) {
   const supabase = await createClient();
 
   // Auth kontrolü
