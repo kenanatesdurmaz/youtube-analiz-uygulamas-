@@ -58,13 +58,28 @@ export default function PricingPage() {
         (typeof data === 'string' && data.includes("sale"));
 
       if (isSale) {
-        console.log("Gumroad sale detected! Redirecting...");
+        console.log("Gumroad sale detected via message! Redirecting...");
         router.push("/success");
       }
     };
 
     window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
+
+    // Official Gumroad Event Listener (Backup)
+    const interval = setInterval(() => {
+      if ((window as any).Gumroad) {
+        (window as any).Gumroad.on('sale', (data: any) => {
+          console.log("Gumroad sale detected via official event!", data);
+          router.push("/success");
+        });
+        clearInterval(interval);
+      }
+    }, 1000);
+
+    return () => {
+      window.removeEventListener("message", handleMessage);
+      clearInterval(interval);
+    };
   }, [supabase, router]);
 
   const handleLogout = async () => {
