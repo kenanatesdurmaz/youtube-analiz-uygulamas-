@@ -52,18 +52,32 @@ export async function POST(req: NextRequest) {
       console.log("Gumroad Test Sale detected. Proceeding with credit update for testing.");
     }
 
-    // 2. If we have a sale but no user_id
-    if (!userId) {
-      console.warn("Webhook Warning: No user_id found in sale data.");
-      return NextResponse.json({ error: "Missing user_id in sale data" }, { status: 200 });
-    }
-
-    console.log(`Processing sale ${saleId} for user ${userId}`);
-
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
+
+    // 2. If we have a sale but no user_id, try to find user by email
+    if (!userId && email) {
+      console.log(`userId missing, attempting lookup by email: ${email}`);
+      const { data: userData } = await supabaseAdmin
+        .from('profiles')
+        .select('id')
+        .eq('email', email)
+        .single();
+      
+      if (userData) {
+        userId = userData.id;
+        console.log(`Found user ${userId} via email ${email}`);
+      }
+    }
+
+    if (!userId) {
+      console.warn("Webhook Warning: No user_id found in sale data and no user found by email. Data:", JSON.stringify(data));
+      return NextResponse.json({ error: "Missing user_id in sale data" }, { status: 200 });
+    }
+
+    console.log(`Processing sale ${saleId} for user ${userId}`);
 
     // 3. Record transaction and check for duplicates
     const { data: existing } = await supabaseAdmin
