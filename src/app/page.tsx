@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Video, Sparkles, Brain, Zap, ArrowRight, Loader2, MessageSquare, Send, Coins, LogOut, Crosshair, ListVideo, Scissors, CheckCircle, LayoutDashboard, ArrowLeft, TrendingUp, Briefcase, Users, HelpCircle, ChevronDown, CheckCircle2 } from "lucide-react";
+import { Play, Video, Sparkles, Brain, Zap, ArrowRight, Loader2, MessageSquare, Send, Coins, LogOut, Crosshair, ListVideo, Scissors, CheckCircle, LayoutDashboard, ArrowLeft, TrendingUp, Briefcase, Users, HelpCircle, ChevronDown, CheckCircle2, Menu, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { videoAnalysis } from "@/actions/videoAnalysis";
 import { askQuestion } from "@/actions/chat";
@@ -28,6 +28,7 @@ export default function Home() {
   const [requiredCredits, setRequiredCredits] = useState(1);
   const [isPremium, setIsPremium] = useState(false);
   const [lastRenewedAt, setLastRenewedAt] = useState<string | null>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Chat States
   const [chatInput, setChatInput] = useState("");
@@ -194,38 +195,54 @@ export default function Home() {
       <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* Soft back button placeholder for symmetry if needed, but logo works as home */}
-            <div className="flex items-center gap-4"><button onClick={() => router.back()} className="text-gray-400 hover:text-white transition-colors p-2 -ml-2"><ArrowLeft className="w-5 h-5" /></button><div className="flex items-center gap-3 cursor-pointer" onClick={() => {setResult(null); window.scrollTo(0,0);}}>
-              <div className="bg-gradient-to-br from-rose-500 to-indigo-600 p-1.5 rounded-lg">
-                <Play className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-4">
+              <button onClick={() => router.back()} className="text-gray-400 hover:text-white transition-colors p-2 -ml-2">
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="flex items-center gap-3 cursor-pointer" onClick={() => {setResult(null); window.scrollTo(0,0);}}>
+                <div className="bg-gradient-to-br from-rose-500 to-indigo-600 p-1.5 rounded-lg">
+                  <Play className="w-5 h-5 text-white" />
+                </div>
+                <span className="text-xl font-bold tracking-tight text-white hidden sm:block">YouBrain</span>
               </div>
-              <span className="text-xl font-bold tracking-tight text-white hidden sm:block">YouBrain</span></div></div>
+            </div>
           </div>
 
           <div className="flex items-center gap-4">
             {!isAuthLoading && (
               user ? (
-                <div className="flex items-center gap-3">
-                  <div className="hidden md:flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
-                    <Coins className="w-4 h-4 text-yellow-400" />
-                    <span className="text-sm font-medium">{credits} Kredi</span>
+                <>
+                  {/* Desktop Menu */}
+                  <div className="hidden md:flex items-center gap-6">
+                    <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/10">
+                      <Coins className="w-4 h-4 text-yellow-400" />
+                      <span className="text-sm font-medium">{credits} Kredi</span>
+                    </div>
+                    <Link href="/dashboard" className="flex items-center gap-1.5 text-sm font-medium text-gray-300 hover:text-white transition-colors">
+                      <LayoutDashboard className="w-4 h-4" /> Geçmiş
+                    </Link>
+                    <button 
+                      onClick={() => setShowManagePlanModal(true)}
+                      className="flex items-center gap-1.5 text-sm font-medium text-gray-300 hover:text-white transition-colors"
+                    >
+                      <Zap className="w-4 h-4 text-indigo-400" /> Planlarım
+                    </button>
+                    <Link href="/pricing" className="text-sm font-medium bg-white text-black hover:bg-gray-200 px-4 py-1.5 rounded-full transition-all">
+                      Kredi Al
+                    </Link>
+                    <button onClick={handleLogout} className="p-1.5 text-gray-400 hover:text-white transition-colors" title="Çıkış Yap">
+                      <LogOut className="w-4 h-4" />
+                    </button>
                   </div>
-                  <Link href="/dashboard" className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-gray-300 hover:text-white transition-colors">
-                    <LayoutDashboard className="w-4 h-4" /> Geçmiş
-                  </Link>
+
+                  {/* Mobile Menu Button */}
                   <button 
-                    onClick={() => setShowManagePlanModal(true)}
-                    className="hidden sm:flex items-center gap-1.5 text-sm font-medium text-gray-300 hover:text-white transition-colors"
+                    onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                    className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
                   >
-                    <Zap className="w-4 h-4 text-indigo-400" /> Planlarım
+                    {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                   </button>
-                  <Link href="/pricing" className="text-sm font-medium bg-white text-black hover:bg-gray-200 px-4 py-1.5 rounded-full transition-all">
-                    Kredi Al
-                  </Link>
-                  <button onClick={handleLogout} className="p-1.5 text-gray-400 hover:text-white transition-colors" title="Çıkış Yap">
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
+                </>
               ) : (
                 <Link href="/login" className="text-sm font-medium bg-white text-black hover:bg-gray-200 px-5 py-2 rounded-full transition-all">
                   Ücretsiz Başla
@@ -234,6 +251,55 @@ export default function Home() {
             )}
           </div>
         </div>
+
+        {/* Mobile Dropdown Menu */}
+        <AnimatePresence>
+          {isMobileMenuOpen && user && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-[#0a0a0a] border-b border-white/5 overflow-hidden"
+            >
+              <div className="px-6 py-6 space-y-4">
+                <div className="flex items-center justify-between bg-white/5 p-4 rounded-2xl border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Coins className="w-5 h-5 text-yellow-400" />
+                    <span className="font-medium text-white">{credits} Kredi</span>
+                  </div>
+                  <Link href="/pricing" onClick={() => setIsMobileMenuOpen(false)} className="text-sm font-bold bg-white text-black px-4 py-2 rounded-xl">
+                    Kredi Al
+                  </Link>
+                </div>
+                
+                <Link 
+                  href="/dashboard" 
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-3 p-4 text-gray-300 hover:text-white transition-colors bg-white/5 rounded-2xl border border-white/5"
+                >
+                  <LayoutDashboard className="w-5 h-5 text-indigo-400" />
+                  <span className="font-medium">Geçmiş Analizler</span>
+                </Link>
+
+                <button 
+                  onClick={() => { setShowManagePlanModal(true); setIsMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 p-4 text-gray-300 hover:text-white transition-colors bg-white/5 rounded-2xl border border-white/5 text-left"
+                >
+                  <Zap className="w-5 h-5 text-rose-400" />
+                  <span className="font-medium">Plan Yönetimi</span>
+                </button>
+
+                <button 
+                  onClick={() => { handleLogout(); setIsMobileMenuOpen(false); }}
+                  className="w-full flex items-center gap-3 p-4 text-rose-400 hover:text-rose-300 transition-colors bg-rose-500/5 rounded-2xl border border-rose-500/10 text-left"
+                >
+                  <LogOut className="w-5 h-5" />
+                  <span className="font-medium">Çıkış Yap</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
       {!result ? (
