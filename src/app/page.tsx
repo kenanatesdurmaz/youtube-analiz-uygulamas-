@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Youtube, Zap, Brain, ArrowRight, CheckCircle, Play } from "lucide-react";
+import { Sparkles, Play, Zap, ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingPage() {
@@ -15,8 +15,8 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 px-6 py-6 border-b border-black/5 bg-white/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-[#FF2B54] rounded-2xl flex items-center justify-center">
-              <Youtube className="w-6 h-6 text-white" />
+            <div className="w-10 h-10 bg-[#FF2B54] rounded-2xl flex items-center justify-center shadow-lg shadow-rose-500/20">
+              <Play className="w-6 h-6 text-white fill-white/20" />
             </div>
             <span className="text-xl font-extrabold tracking-tight">YouBrain</span>
           </div>
@@ -28,7 +28,7 @@ export default function LandingPage() {
 
           <Link 
             href="/login" 
-            className="px-6 py-3 bg-black text-white rounded-full text-sm font-bold hover:scale-105 transition-all shadow-xl"
+            className="px-7 py-3 bg-black text-white rounded-full text-sm font-bold hover:scale-105 transition-all shadow-xl active:scale-95"
           >
             Hemen Başla
           </Link>
@@ -71,10 +71,10 @@ export default function LandingPage() {
             transition={{ delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <Link href="/login" className="primary-button flex items-center gap-2 text-lg">
+            <Link href="/login" className="primary-button flex items-center gap-2 text-lg px-10 py-5">
               Ücretsiz Deneyin <ArrowRight className="w-5 h-5" />
             </Link>
-            <button className="px-8 py-4 bg-gray-100 text-gray-900 rounded-full font-bold flex items-center gap-2 hover:bg-gray-200 transition-all">
+            <button className="px-10 py-5 bg-gray-100 text-gray-900 rounded-full font-bold flex items-center gap-2 hover:bg-gray-200 transition-all shadow-sm">
               <Play className="w-5 h-5 fill-current" /> Nasıl Çalışır?
             </button>
           </motion.div>
@@ -91,12 +91,12 @@ export default function LandingPage() {
               description: "Herhangi bir YouTube videosunun ana fikirlerini ve önemli noktalarını saniyeler içinde alın."
             },
             {
-              icon: <Brain className="w-8 h-8 text-indigo-500" />,
+              icon: <Zap className="w-8 h-8 text-indigo-500" />,
               title: "Video ile Sohbet",
               description: "Videonun içeriğine dair sorular sorun ve yapay zekadan anında yanıtlar alın."
             },
             {
-              icon: <CheckCircle className="w-8 h-8 text-emerald-500" />,
+              icon: <Check className="w-8 h-8 text-emerald-500" />,
               title: "Transkript Analizi",
               description: "Videonun tam metnini inceleyin ve istediğiniz bölümlere anında odaklanın."
             }
@@ -104,12 +104,12 @@ export default function LandingPage() {
             <motion.div
               key={i}
               whileHover={{ y: -10 }}
-              className="bg-white p-12 rounded-[32px] border border-black/5 shadow-sm hover:shadow-2xl transition-all"
+              className="bg-white p-12 rounded-[40px] border border-black/5 shadow-sm hover:shadow-2xl transition-all duration-500"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-8 border border-black/5">
+              <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-8 border border-black/5 shadow-inner">
                 {feature.icon}
               </div>
-              <h3 className="text-2xl font-black text-black mb-4">{feature.title}</h3>
+              <h3 className="text-2xl font-black text-black mb-4 tracking-tight">{feature.title}</h3>
               <p className="text-gray-500 font-medium leading-relaxed">{feature.description}</p>
             </motion.div>
           ))}
@@ -118,24 +118,24 @@ export default function LandingPage() {
 
       {/* Final CTA */}
       <section className="section-padding">
-        <div className="max-w-7xl mx-auto rounded-[48px] bg-black p-20 text-center relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#FF2B54]/10 rounded-full blur-[100px]" />
+        <div className="max-w-7xl mx-auto rounded-[56px] bg-black p-24 text-center relative overflow-hidden shadow-[0_40px_80px_-15px_rgba(0,0,0,0.3)]">
+          <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#FF2B54]/10 rounded-full blur-[120px]" />
           
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-8 relative z-10">
+          <h2 className="text-4xl md:text-7xl font-black text-white mb-10 relative z-10 tracking-tight leading-tight">
             Daha Akıllıca Analiz <br /> Etmeye Başlayın.
           </h2>
-          <p className="text-xl text-gray-400 mb-12 max-w-2xl mx-auto relative z-10">
+          <p className="text-xl text-gray-400 mb-14 max-w-2xl mx-auto relative z-10 font-medium">
             Kanal sahipleri, öğrenciler ve profesyoneller için YouTube'u bir bilgi kütüphanesine dönüştürüyoruz.
           </p>
-          <Link href="/login" className="inline-flex px-12 py-5 bg-[#FF2B54] text-white rounded-full font-bold text-xl hover:scale-105 transition-all shadow-2xl relative z-10">
+          <Link href="/login" className="inline-flex px-14 py-6 bg-[#FF2B54] text-white rounded-full font-extrabold text-xl hover:scale-105 transition-all shadow-[0_20px_40px_rgba(255,43,84,0.3)] relative z-10 active:scale-95">
             Ücretsiz Hesabını Oluştur
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-black/5 text-center text-gray-400 font-medium">
-        <p>© 2026 YouBrain. Tüm hakları saklıdır.</p>
+      <footer className="py-20 border-t border-black/5 text-center text-gray-400 font-semibold tracking-wide uppercase text-xs">
+        <p>© 2026 YouBrain — Geleceğin Video Analiz Platformu</p>
       </footer>
     </div>
   );
