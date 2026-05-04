@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Sparkles, Youtube, Zap, Brain, ArrowRight, CheckCircle2, Play } from "lucide-react";
+import { Sparkles, Youtube, Zap, Brain, ArrowRight, CheckCircle, Play } from "lucide-react";
 import Link from "next/link";
 
 export default function LandingPage() {
@@ -96,7 +96,7 @@ export default function LandingPage() {
               description: "Videonun içeriğine dair sorular sorun ve yapay zekadan anında yanıtlar alın."
             },
             {
-              icon: <CheckCircle2 className="w-8 h-8 text-emerald-500" />,
+              icon: <CheckCircle className="w-8 h-8 text-emerald-500" />,
               title: "Transkript Analizi",
               description: "Videonun tam metnini inceleyin ve istediğiniz bölümlere anında odaklanın."
             }
