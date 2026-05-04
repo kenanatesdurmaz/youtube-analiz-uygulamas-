@@ -63,24 +63,33 @@ export default function PricingPage() {
       }
     };
 
-    window.addEventListener("message", handleMessage);
-
-    // Official Gumroad Event Listener (Backup)
-    const interval = setInterval(() => {
-      if ((window as any).Gumroad) {
-        (window as any).Gumroad.on('sale', (data: any) => {
-          console.log("Gumroad sale detected via official event!", data);
+    // Foolproof Backup: Poll for credit increase
+    let initialCredits = -1;
+    const creditInterval = setInterval(async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('credits')
+        .eq('id', user.id)
+        .single();
+      
+      if (profile) {
+        if (initialCredits === -1) {
+          initialCredits = profile.credits || 0;
+        } else if (profile.credits > initialCredits) {
+          console.log("Credit increase detected! Payment successful.");
+          clearInterval(creditInterval);
           router.push("/success");
-        });
-        clearInterval(interval);
+        }
       }
-    }, 1000);
+    }, 3000); // Check every 3 seconds
 
     return () => {
       window.removeEventListener("message", handleMessage);
-      clearInterval(interval);
+      clearInterval(creditInterval);
     };
-  }, [supabase, router]);
+  }, [supabase, router, user]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
